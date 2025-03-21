@@ -112,28 +112,16 @@ public static class Utils
 
     public static void PaintImageOntoImage(Image<Rgba32> targetImage, int startX, int startY, Image<Rgba32> sourceImage)
     {
-        // Bounds check to avoid painting outside the target image
-        if (startX < 0 || startY < 0 || startX + sourceImage.Width > targetImage.Width || startY + sourceImage.Height > targetImage.Height)
+        sourceImage.ProcessPixelRows(targetImage, (srcPixels, tgtPixels) =>
         {
-            throw new ArgumentException("The specified area exceeds the boundaries of the target image.");
-        }
-
-        // Paint the source image onto the target image
-        for (int y = 0; y < sourceImage.Height; y++)
-        {
-            for (int x = 0; x < sourceImage.Width; x++)
+            for (int y = 0; y < sourceImage.Height; y++)
             {
-                // Get the pixel from the source image
-                Rgba32 sourcePixel = sourceImage[x, y];
+                Span<Rgba32> srcRow = srcPixels.GetRowSpan(y);
+                Span<Rgba32> tgtRow = tgtPixels.GetRowSpan(startY + y);
 
-                // Calculate the target coordinates in the target image
-                int targetX = startX + x;
-                int targetY = startY + y;
-
-                // Set the pixel at the target coordinates
-                targetImage[targetX, targetY] = sourcePixel;
+                srcRow.CopyTo(tgtRow.Slice(startX, sourceImage.Width));
             }
-        }
+        });
     }
 
     public static void PaintPixelArrayOntoImage(Image<Rgba32> image, int startX, int startY, int pixelArrayWidth, int pixelArrayHeight, Rgba32[] pixelArray)

@@ -84,6 +84,7 @@ public class SwfToPam
     private Dictionary<string, Dictionary<int, List<PACommand>>> m_actionsForSprites = new();
     private Dictionary<string, List<int>> m_stopsForSprites = new();
     private HashSet<string> m_imageNamePool = new();
+    private List<(string imgPath, Image<Rgba32> img)> m_imagesToExport = new();
     private List<int> m_spriteSymbolIds = new();
     private List<int> m_processedBitmapIds = new();
     private List<BitmapBaseTag> m_bitmapTags = new();
@@ -345,7 +346,8 @@ public class SwfToPam
             if(Program.Settings.ExportImages)
             {
                 string filePath = Path.Combine(m_imgOutputFolder, imgName + ".png");
-                bmpAsImg.Save(filePath);
+                //bmpAsImg.Save(filePath);
+                m_imagesToExport.Add(new(filePath, bmpAsImg));
             }
 
             ImageInfo imgInfo = new();
@@ -1037,6 +1039,11 @@ public class SwfToPam
             }
 
             m_resourceGenerator.FinalizeResources();
+
+            Parallel.ForEach(m_imagesToExport, imgEntry =>
+            {
+                imgEntry.img.Save(imgEntry.imgPath);
+            });
 
             m_writer.Close();
             swfConvertTimer.Stop();

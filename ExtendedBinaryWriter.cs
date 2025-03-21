@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ public class ExtendedBinaryWriter : BinaryWriter
         }
     }
 
-    private Stack<long> m_steps;
+    private Stack<long> m_steps = new(64);
 
     public ExtendedBinaryWriter(Stream inStream) : base(inStream)
     {
