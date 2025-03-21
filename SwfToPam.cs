@@ -435,7 +435,7 @@ public class SwfToPam
     {
         m_depthToObjIdxMap.Clear();
         m_depthToMatrixMap.Clear();
-        m_depthToColorTransMap.Clear();
+        //m_depthToColorTransMap.Clear();
 
         VerifyFormatting(tags);
 
@@ -470,7 +470,6 @@ public class SwfToPam
             long frameFlagPos = m_writer.BaseStream.Position;
             FrameFlags frameFlags = 0;
             m_writer.Write((byte)frameFlags); // temp - flags
-            //Console.WriteLine($"Write FrameFlags at {frameFlagPos}");
 
             List<SwfTagBase> tagsForThisFrame = new List<SwfTagBase>();
             foreach (var tag in tags)
@@ -512,7 +511,7 @@ public class SwfToPam
 
                             m_depthToObjIdxMap.Remove(remove.Depth);
                             m_depthToMatrixMap.Remove(remove.Depth);
-                            m_depthToColorTransMap.Remove(remove.Depth);
+                            //m_depthToColorTransMap.Remove(remove.Depth);
                         }
 
                         foreach(var replace in replaceTags)
@@ -599,7 +598,6 @@ public class SwfToPam
                             }
 
                             m_writer.StepIn(packedDataPos);
-                            //Console.WriteLine($"Wrote an add for obj idx {packedData & 0x7FF} at {packedDataPos.ToString("X")}");
                             m_writer.Write(packedData);
                             m_writer.StepOut();
 
@@ -689,17 +687,26 @@ public class SwfToPam
 
                             if (move.HasColorTransform)
                             {
-                                short r = move.ColorTransform.RedMultTerm;
-                                short g = move.ColorTransform.GreenMultTerm;
-                                short b = move.ColorTransform.BlueMultTerm;
-                                short a = move.ColorTransform.AlphaMultTerm;
-                                if (move.ColorTransform.HasMultTerms)
+                                short r = 255;
+                                short g = 255;
+                                short b = 255;
+                                short a = 255;
+
+                                if(move.ColorTransform.HasMultTerms)
                                 {
+                                    r = move.ColorTransform.RedMultTerm;
+                                    g = move.ColorTransform.GreenMultTerm;
+                                    b = move.ColorTransform.BlueMultTerm;
+                                    a = move.ColorTransform.AlphaMultTerm;
+
+                                    /*
                                     if (m_depthToColorTransMap.ContainsKey(move.Depth))
                                         m_depthToColorTransMap[move.Depth] = move.ColorTransform;
                                     else
                                         m_depthToColorTransMap.Add(move.Depth, move.ColorTransform);
+                                    */
                                 }
+                                /*
                                 else
                                 {
                                     r = m_depthToColorTransMap[move.Depth].RedMultTerm;
@@ -707,6 +714,7 @@ public class SwfToPam
                                     b = m_depthToColorTransMap[move.Depth].BlueMultTerm;
                                     a = m_depthToColorTransMap[move.Depth].AlphaMultTerm;
                                 }
+                                */
 
                                 packedData |= 0x2000;
                                 m_writer.Write((byte)Math.Clamp(r, (short)0, (short)255));
@@ -716,7 +724,6 @@ public class SwfToPam
                             }
 
                             m_writer.StepIn(packedDataPos);
-                            //Console.WriteLine($"Wrote a move for obj idx {packedData & 0x3FF} at {packedDataPos.ToString("X")}");
                             m_writer.Write(packedData);
                             m_writer.StepOut();
                         }
@@ -791,7 +798,6 @@ public class SwfToPam
                         frameFlagPos = m_writer.Position;
                         frameFlags = 0;
                         m_writer.Write((byte)frameFlags);
-                        //Console.WriteLine($"Write FrameFlags at {frameFlagPos}");
                     }
                 }
             }
@@ -1035,7 +1041,6 @@ public class SwfToPam
             m_writer.Close();
             swfConvertTimer.Stop();
             Console.WriteLine($"Finished writing {outputFileName} in {swfConvertTimer.Elapsed.TotalSeconds} seconds");
-            //Console.WriteLine($"Rot count: {s_rotCount}");
         }
     }
 }
