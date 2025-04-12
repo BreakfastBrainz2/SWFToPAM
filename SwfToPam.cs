@@ -987,11 +987,11 @@ public class SwfToPam
             m_writer.Write((uint)0xBAF01954); // PAM Magic
             m_writer.Write((int)6); // Version - I see no reason to support older versions
             m_writer.Write((byte)swf.Header.FrameRate);
-            // anim rect - not used by the game, so always write the default of 390,390
-            m_writer.Write((short)0);
-            m_writer.Write((short)0);
-            m_writer.Write((short)7800);
-            m_writer.Write((short)7800);
+            // anim rect
+            m_writer.Write((short)swf.Header.FrameSize.XMin);
+            m_writer.Write((short)swf.Header.FrameSize.YMin);
+            m_writer.Write((short)swf.Header.FrameSize.XMax);
+            m_writer.Write((short)swf.Header.FrameSize.YMax);
 
             m_writer.Write((ushort)m_bitmapCount);
             foreach (var defineShape in swf.Tags.OfType<ShapeBaseTag>())
